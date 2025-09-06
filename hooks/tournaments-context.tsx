@@ -92,9 +92,26 @@ export const [TournamentsProvider, useTournaments] = createContextHook<Tournamen
 
   const filteredTournaments = useMemo(() => {
     return tournaments.filter(tournament => {
-      if (filters.location && !tournament.location.toLowerCase().includes(filters.location.toLowerCase())) {
-        return false;
+      // Handle location and price filtering
+      if (filters.location) {
+        const locationFilter = filters.location.toLowerCase();
+        
+        // Check for price filters
+        if (locationFilter.includes('$0-$100')) {
+          if (tournament.entryFee > 100) return false;
+        } else if (locationFilter.includes('$100-$200')) {
+          if (tournament.entryFee < 100 || tournament.entryFee > 200) return false;
+        } else if (locationFilter.includes('$200+')) {
+          if (tournament.entryFee < 200) return false;
+        }
+        
+        // Check location text (excluding price filters)
+        const locationText = locationFilter.replace(/\$[^\s]+/g, '').trim();
+        if (locationText && !tournament.location.toLowerCase().includes(locationText)) {
+          return false;
+        }
       }
+      
       if (filters.ageGroup && !tournament.ageGroups.includes(filters.ageGroup)) {
         return false;
       }

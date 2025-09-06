@@ -30,7 +30,14 @@ export default function TournamentsScreen() {
 
   const handleSearch = (text: string) => {
     setSearchText(text);
-    setFilters({ location: text });
+    // Only update location filter if it's not a price filter
+    if (!filters.location.includes('$')) {
+      setFilters({ location: text });
+    } else {
+      // Preserve price filter and add location search
+      const priceFilter = filters.location.match(/\$[^\s]+/)?.[0] || '';
+      setFilters({ location: text ? `${text} ${priceFilter}`.trim() : priceFilter });
+    }
   };
 
   const clearAllFilters = () => {
@@ -255,7 +262,7 @@ export default function TournamentsScreen() {
         ) : (
           <>
             <View style={styles.resultsHeader}>
-              <View>
+              <View style={styles.resultsInfo}>
                 <Text style={styles.resultsText}>
                   {filteredTournaments.length} tournament{filteredTournaments.length !== 1 ? 's' : ''} found
                 </Text>
@@ -264,9 +271,18 @@ export default function TournamentsScreen() {
                     {getActiveFilterCount()} filter{getActiveFilterCount() !== 1 ? 's' : ''} applied
                   </Text>
                 )}
+                <Text style={styles.lastUpdatedText}>Last updated: Just now</Text>
               </View>
-              <View style={styles.tournamentSourceBadge}>
-                <Text style={styles.tournamentSourceText}>USTA Sanctioned</Text>
+              <View style={styles.sourceBadges}>
+                <View style={styles.tournamentSourceBadge}>
+                  <Text style={styles.tournamentSourceText}>USTA</Text>
+                </View>
+                <View style={[styles.tournamentSourceBadge, { backgroundColor: COLORS.accent }]}>
+                  <Text style={[styles.tournamentSourceText, { color: COLORS.text }]}>ITF</Text>
+                </View>
+                <View style={[styles.tournamentSourceBadge, { backgroundColor: COLORS.primaryDark }]}>
+                  <Text style={styles.tournamentSourceText}>UTR</Text>
+                </View>
               </View>
             </View>
             {filteredTournaments.map(renderTournamentCard)}
@@ -440,6 +456,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    alignItems: 'center',
   },
   searchBar: {
     flex: 1,
@@ -464,6 +481,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    minWidth: 48,
+    minHeight: 48,
   },
   filterButtonActive: {
     backgroundColor: COLORS.primaryDark,
@@ -554,8 +573,16 @@ const styles = StyleSheet.create({
   resultsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  resultsInfo: {
+    flex: 1,
+  },
+  sourceBadges: {
+    flexDirection: 'row',
+    gap: 4,
   },
   resultsText: {
     fontSize: 16,
@@ -568,15 +595,21 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
     marginTop: 2,
   },
+  lastUpdatedText: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
   tournamentSourceBadge: {
     backgroundColor: COLORS.secondary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   tournamentSourceText: {
     color: COLORS.surface,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600' as const,
   },
   clearFiltersEmptyButton: {
