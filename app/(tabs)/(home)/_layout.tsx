@@ -1,0 +1,22 @@
+import { Stack } from "expo-router";
+import { COLORS } from "@/constants/tennis";
+
+export default function HomeLayout() {
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: COLORS.secondary },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' as const }
+      }}
+    >
+      <Stack.Screen 
+        name="index" 
+        options={{ 
+          title: "Tennis Chat",
+          headerLargeTitle: true
+        }} 
+      />
+    </Stack>
+  );
+}
